@@ -1,0 +1,24 @@
+# Python Cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+.venv/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# macOS system files
+.DS_Store
+
+# SUMO Generated Data (Heavy binaries)
+*.net.xml
+*.rou.xml
+*.trips.xml
+*.poly.xml
+*.log
+
+# Project Outputs
+outputs/models/
