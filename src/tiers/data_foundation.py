@@ -49,3 +49,51 @@ def save_raw_osm(graph, filename="kigali_raw.osm"):
     logger.info(f"Saving raw network to {output_path}...")
     ox.save_graph_xml(graph, filepath=output_path)
     logger.info("Save complete.")
+
+def refine_network_attributes(graph):
+    """
+    Refines road attributes by imputing missing speed limits and lane counts
+    based on Kigali's urban road standards.
+    """
+    logger.info("Refining road attributes (speeds and lanes)...")
+    
+    # Standard Kigali urban speeds (km/h) converted to m/s for SUMO
+    # Primary: 60km/h (~16.6 m/s), Secondary: 50km/h (~13.8 m/s), Residential: 30km/h (~8.3 m/s)
+    speed_map = {
+        'trunk': 16.67,
+        'primary': 16.67,
+        'secondary': 13.89,
+        'tertiary': 11.11,
+        'residential': 8.33,
+        'unclassified': 8.33
+    }
+    
+    # Default lanes if missing
+    lane_map = {
+        'trunk': 3,
+        'primary': 2,
+        'secondary': 2,
+        'tertiary': 1,
+        'residential': 1
+    }
+
+    for u, v, k, data in graph.edges(data=True, keys=True):
+        highway_type = data.get('highway', 'unclassified')
+        if isinstance(highway_type, list): highway_type = highway_type[0]
+
+        # Impute Speed
+        if 'maxspeed' not in data:
+            data['speed'] = speed_map.get(highway_type, 8.33)
+        else:
+            # Handle potential strings/lists in OSM maxspeed data
+            try:
+                data['speed'] = float(data['maxspeed']) / 3.6
+            except (ValueError, TypeError):
+                data['speed'] = speed_map.get(highway_type, 8.33)
+
+        # Impute Lanes
+        if 'lanes' not in data:
+            data['lanes'] = lane_map.get(highway_type, 1)
+            
+    logger.info("Attribute refinement complete.")
+    return graph
