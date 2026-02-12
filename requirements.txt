@@ -1,0 +1,9 @@
+jupyter
+ipykernel
+numpy
+pandas
+matplotlib
+osmnx
+geopandas
+sumolib
+traci
