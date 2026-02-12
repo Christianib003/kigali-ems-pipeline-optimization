@@ -1,2 +1,32 @@
 # Utility files
 project_milestones.md
+
+# Local environment
+.env
+.env.*
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Long-running outputs (keep out of git; resume via run folders)
+runs/
+reports/runs/
+*.pt
+*.pth
+*.ckpt
+*.pkl
+
+# SUMO outputs (generated during runs)
+*.rou.xml
+*.trip.xml
+*.add.xml
+*.emission.xml
+*.fcd.xml
+*.tripinfo.xml
+*.edgeData.xml
+*.queue.xml
+*.stat.xml
+sumo_*.log
