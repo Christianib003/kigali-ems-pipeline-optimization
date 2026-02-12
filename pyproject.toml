@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+
+[tool.ruff]
+line-length = 100
+# Keep rules minimal and practical
+select = ["E", "F", "I", "UP"]
+ignore = []
+fix = true
+
+[tool.ruff.format]
+# Ruff formatting is optional; we use Black as the formatter.

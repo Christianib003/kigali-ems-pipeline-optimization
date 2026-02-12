@@ -31,3 +31,7 @@ reports/runs/
 *.queue.xml
 *.stat.xml
 sumo_*.log
+
+# Python cache
+__pycache__/
+
