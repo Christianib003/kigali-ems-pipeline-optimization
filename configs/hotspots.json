@@ -1,0 +1,130 @@
+{
+  "metadata": {
+    "source": "Patel et al. (2016) injury hotspot study (to be digitized/geocoded)",
+    "city": "Kigali, Rwanda",
+    "version": "0.1",
+    "notes": "Fill in lat/lon and weights after extracting hotspot coordinates from the paper/map."
+  },
+  "hotspots": [
+    {
+      "id": "HS01",
+      "name": "R1_P1 — Central Kigali (CBD / Downtown)",
+      "lat": -1.9482021,
+      "lon": 30.057958,
+      "weight": 8.0,
+      "notes": "node_id=279254284, dist_m=210.7, degree=8"
+    },
+    {
+      "id": "HS02",
+      "name": "R1_P2 — Central Kigali (CBD / Downtown)",
+      "lat": -1.9503623,
+      "lon": 30.0613094,
+      "weight": 8.0,
+      "notes": "node_id=281375156, dist_m=283.6, degree=8"
+    },
+    {
+      "id": "HS03",
+      "name": "R1_P3 — Central Kigali (CBD / Downtown)",
+      "lat": -1.9469079,
+      "lon": 30.0583991,
+      "weight": 8.0,
+      "notes": "node_id=279254295, dist_m=335.7, degree=8"
+    },
+    {
+      "id": "HS04",
+      "name": "R1_P4 — Central Kigali (CBD / Downtown)",
+      "lat": -1.9505862,
+      "lon": 30.0553143,
+      "weight": 8.0,
+      "notes": "node_id=12237774265, dist_m=394.8, degree=8"
+    },
+    {
+      "id": "HS05",
+      "name": "R1_P5 — Central Kigali (CBD / Downtown)",
+      "lat": -1.9483391,
+      "lon": 30.0642693,
+      "weight": 8.0,
+      "notes": "node_id=281375108, dist_m=632.1, degree=8"
+    },
+    {
+      "id": "HS06",
+      "name": "R2_P1 — Nyabugogo (Transport hub area)",
+      "lat": -1.9414341,
+      "lon": 30.0502016,
+      "weight": 8.0,
+      "notes": "node_id=1223047162, dist_m=665.6, degree=8"
+    },
+    {
+      "id": "HS07",
+      "name": "R2_P2 — Nyabugogo (Transport hub area)",
+      "lat": -1.9423927,
+      "lon": 30.0500417,
+      "weight": 8.0,
+      "notes": "node_id=1223047194, dist_m=689.7, degree=8"
+    },
+    {
+      "id": "HS08",
+      "name": "R2_P3 — Nyabugogo (Transport hub area)",
+      "lat": -1.9378432,
+      "lon": 30.0532957,
+      "weight": 8.0,
+      "notes": "node_id=1223047118, dist_m=996.8, degree=8"
+    },
+    {
+      "id": "HS09",
+      "name": "R2_P4 — Nyabugogo (Transport hub area)",
+      "lat": -1.9384962,
+      "lon": 30.0534032,
+      "weight": 8.0,
+      "notes": "node_id=1223047252, dist_m=997.0, degree=8"
+    },
+    {
+      "id": "HS10",
+      "name": "R2_P5 — Nyabugogo (Transport hub area)",
+      "lat": -1.9369851,
+      "lon": 30.0534734,
+      "weight": 8.0,
+      "notes": "node_id=1223047198, dist_m=1038.8, degree=8"
+    },
+    {
+      "id": "HS11",
+      "name": "R3_P1 — Remera / Giporoso corridor (East)",
+      "lat": -1.9543451,
+      "lon": 30.1055163,
+      "weight": 8.0,
+      "notes": "node_id=1104499781, dist_m=398.9, degree=8"
+    },
+    {
+      "id": "HS12",
+      "name": "R3_P2 — Remera / Giporoso corridor (East)",
+      "lat": -1.9630478,
+      "lon": 30.1049343,
+      "weight": 8.0,
+      "notes": "node_id=1221381314, dist_m=584.5, degree=8"
+    },
+    {
+      "id": "HS13",
+      "name": "R3_P3 — Remera / Giporoso corridor (East)",
+      "lat": -1.9520848,
+      "lon": 30.1093329,
+      "weight": 8.0,
+      "notes": "node_id=2813694910, dist_m=745.2, degree=8"
+    },
+    {
+      "id": "HS14",
+      "name": "R3_P4 — Remera / Giporoso corridor (East)",
+      "lat": -1.9540992,
+      "lon": 30.1003276,
+      "weight": 8.0,
+      "notes": "node_id=718926973, dist_m=758.9, degree=8"
+    },
+    {
+      "id": "HS15",
+      "name": "R3_P5 — Remera / Giporoso corridor (East)",
+      "lat": -1.9514191,
+      "lon": 30.1090649,
+      "weight": 8.0,
+      "notes": "node_id=2813694909, dist_m=797.1, degree=8"
+    }
+  ]
+}

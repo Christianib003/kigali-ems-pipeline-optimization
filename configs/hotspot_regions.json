@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "source": "Patel et al. (2016) KDE hotspot map (macro-regions approximated, then discretized into intersections using OSM graph)",
+    "city": "Kigali, Rwanda",
+    "version": "0.1",
+    "notes": "Each region is a macro hotspot. We will select n_points intersections inside radius_m from the OSM graph."
+  },
+  "regions": [
+    {
+      "region_id": "R1",
+      "name": "Central Kigali (CBD / Downtown)",
+      "lat": -1.9499,
+      "lon": 30.0588,
+      "radius_m": 2500,
+      "n_points": 5
+    },
+    {
+      "region_id": "R2",
+      "name": "Nyabugogo (Transport hub area)",
+      "lat": -1.9396,
+      "lon": 30.0445,
+      "radius_m": 2000,
+      "n_points": 5
+    },
+    {
+      "region_id": "R3",
+      "name": "Remera / Giporoso corridor (East)",
+      "lat": -1.9579,
+      "lon": 30.1060,
+      "radius_m": 2500,
+      "n_points": 5
+    }
+  ],
+  "sampling_policy": {
+    "hotspot_fraction": 0.8,
+    "uniform_fraction": 0.2,
+    "notes": "During incident generation: sample 80% from hotspot regions and 20% uniformly across the city for generalization."
+  }
+}
