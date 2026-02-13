@@ -35,3 +35,11 @@ sumo_*.log
 # Python cache
 __pycache__/
 
+
+# --- Generated artifacts (do not commit) ---
+cache/
+data/raw/
+data/processed/
+sim/net/*.net.xml
+sim/net/*.osm.xml
+reports/figures/
