@@ -54,3 +54,31 @@ pip install -r requirements.txt
 * `notebooks/00_setup_sanity.ipynb`
 
 - And proceed to run other notebooks.
+
+## Figma Design
+1. **Live Operations Dashboard**
+![Live Operations](design/1-live_ops.png)
+
+2. **Incidents**
+![Incidents](design/2-incidents.png)
+
+3. **Fleet**
+![Fleet](design/3-fleet.png)
+
+4. **Hospitals**
+![Hospitals](design/4-hospitals.png)
+
+5. **Traffic**
+![Traffic](design/5-traffic.png)
+
+6. **Analytics**
+![Analytics](design/6-analytics.png)
+
+7. **Scenario Control**
+![Scenario Control](design/7-scenario_control.png)
+
+
+## Credits:
+- [The epidemiology of road traffic injury hotspots in Kigali, Rwanda from police data, published in 2016.](https://www.researchgate.net/publication/305803686_The_epidemiology_of_road_traffic_injury_hotspots_in_Kigali_Rwanda_from_police_data)
+
+
