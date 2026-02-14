@@ -12,7 +12,9 @@
       "lat": -1.9482021,
       "lon": 30.057958,
       "weight": 8.0,
-      "notes": "node_id=279254284, dist_m=210.7, degree=8"
+      "notes": "node_id=279254284, dist_m=210.7, degree=8",
+      "region_id": "R1",
+      "node_id": 279254284
     },
     {
       "id": "HS02",
@@ -20,7 +22,9 @@
       "lat": -1.9503623,
       "lon": 30.0613094,
       "weight": 8.0,
-      "notes": "node_id=281375156, dist_m=283.6, degree=8"
+      "notes": "node_id=281375156, dist_m=283.6, degree=8",
+      "region_id": "R1",
+      "node_id": 281375156
     },
     {
       "id": "HS03",
@@ -28,7 +32,9 @@
       "lat": -1.9469079,
       "lon": 30.0583991,
       "weight": 8.0,
-      "notes": "node_id=279254295, dist_m=335.7, degree=8"
+      "notes": "node_id=279254295, dist_m=335.7, degree=8",
+      "region_id": "R1",
+      "node_id": 279254295
     },
     {
       "id": "HS04",
@@ -36,7 +42,9 @@
       "lat": -1.9505862,
       "lon": 30.0553143,
       "weight": 8.0,
-      "notes": "node_id=12237774265, dist_m=394.8, degree=8"
+      "notes": "node_id=12237774265, dist_m=394.8, degree=8",
+      "region_id": "R1",
+      "node_id": 12237774265
     },
     {
       "id": "HS05",
@@ -44,7 +52,9 @@
       "lat": -1.9483391,
       "lon": 30.0642693,
       "weight": 8.0,
-      "notes": "node_id=281375108, dist_m=632.1, degree=8"
+      "notes": "node_id=281375108, dist_m=632.1, degree=8",
+      "region_id": "R1",
+      "node_id": 281375108
     },
     {
       "id": "HS06",
@@ -52,7 +62,9 @@
       "lat": -1.9414341,
       "lon": 30.0502016,
       "weight": 8.0,
-      "notes": "node_id=1223047162, dist_m=665.6, degree=8"
+      "notes": "node_id=1223047162, dist_m=665.6, degree=8",
+      "region_id": "R2",
+      "node_id": 1223047162
     },
     {
       "id": "HS07",
@@ -60,7 +72,9 @@
       "lat": -1.9423927,
       "lon": 30.0500417,
       "weight": 8.0,
-      "notes": "node_id=1223047194, dist_m=689.7, degree=8"
+      "notes": "node_id=1223047194, dist_m=689.7, degree=8",
+      "region_id": "R2",
+      "node_id": 1223047194
     },
     {
       "id": "HS08",
@@ -68,7 +82,9 @@
       "lat": -1.9378432,
       "lon": 30.0532957,
       "weight": 8.0,
-      "notes": "node_id=1223047118, dist_m=996.8, degree=8"
+      "notes": "node_id=1223047118, dist_m=996.8, degree=8",
+      "region_id": "R2",
+      "node_id": 1223047118
     },
     {
       "id": "HS09",
@@ -76,7 +92,9 @@
       "lat": -1.9384962,
       "lon": 30.0534032,
       "weight": 8.0,
-      "notes": "node_id=1223047252, dist_m=997.0, degree=8"
+      "notes": "node_id=1223047252, dist_m=997.0, degree=8",
+      "region_id": "R2",
+      "node_id": 1223047252
     },
     {
       "id": "HS10",
@@ -84,7 +102,9 @@
       "lat": -1.9369851,
       "lon": 30.0534734,
       "weight": 8.0,
-      "notes": "node_id=1223047198, dist_m=1038.8, degree=8"
+      "notes": "node_id=1223047198, dist_m=1038.8, degree=8",
+      "region_id": "R2",
+      "node_id": 1223047198
     },
     {
       "id": "HS11",
@@ -92,7 +112,9 @@
       "lat": -1.9543451,
       "lon": 30.1055163,
       "weight": 8.0,
-      "notes": "node_id=1104499781, dist_m=398.9, degree=8"
+      "notes": "node_id=1104499781, dist_m=398.9, degree=8",
+      "region_id": "R3",
+      "node_id": 1104499781
     },
     {
       "id": "HS12",
@@ -100,7 +122,9 @@
       "lat": -1.9630478,
       "lon": 30.1049343,
       "weight": 8.0,
-      "notes": "node_id=1221381314, dist_m=584.5, degree=8"
+      "notes": "node_id=1221381314, dist_m=584.5, degree=8",
+      "region_id": "R3",
+      "node_id": 1221381314
     },
     {
       "id": "HS13",
@@ -108,7 +132,9 @@
       "lat": -1.9520848,
       "lon": 30.1093329,
       "weight": 8.0,
-      "notes": "node_id=2813694910, dist_m=745.2, degree=8"
+      "notes": "node_id=2813694910, dist_m=745.2, degree=8",
+      "region_id": "R3",
+      "node_id": 2813694910
     },
     {
       "id": "HS14",
@@ -116,7 +142,9 @@
       "lat": -1.9540992,
       "lon": 30.1003276,
       "weight": 8.0,
-      "notes": "node_id=718926973, dist_m=758.9, degree=8"
+      "notes": "node_id=718926973, dist_m=758.9, degree=8",
+      "region_id": "R3",
+      "node_id": 718926973
     },
     {
       "id": "HS15",
@@ -124,7 +152,9 @@
       "lat": -1.9514191,
       "lon": 30.1090649,
       "weight": 8.0,
-      "notes": "node_id=2813694909, dist_m=797.1, degree=8"
+      "notes": "node_id=2813694909, dist_m=797.1, degree=8",
+      "region_id": "R3",
+      "node_id": 2813694909
     }
   ]
 }
