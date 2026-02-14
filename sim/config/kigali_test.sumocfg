@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+  <input>
+    <net-file value="../net/kigali.net.xml"/>
+    <route-files value="../rou/empty.rou.xml"/>
+  </input>
+
+  <time>
+    <begin value="0"/>
+    <end value="200"/>
+    <step-length value="1.0"/>
+  </time>
+
+  <report>
+    <no-warnings value="true"/>
+    <verbose value="false"/>
+  </report>
+
+</configuration>

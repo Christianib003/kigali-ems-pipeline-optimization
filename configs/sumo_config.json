@@ -1,0 +1,7 @@
+{
+  "use_gui": false,
+  "step_length": 1.0,
+  "seed": 42,
+  "sumo_bin": null,
+  "sumo_gui_bin": null
+}
