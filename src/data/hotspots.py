@@ -84,6 +84,8 @@ def hotspots_to_dataframe(cfg: dict[str, Any]):
             {
                 "id": hs.get("id"),
                 "name": hs.get("name"),
+                "region_id": hs.get("region_id"),
+                "node_id": hs.get("node_id"),
                 "lat": hs.get("lat"),
                 "lon": hs.get("lon"),
                 "weight": hs.get("weight"),
