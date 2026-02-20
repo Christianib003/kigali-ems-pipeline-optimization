@@ -14,6 +14,9 @@ A simulation-based capstone project for optimizing Kigali emergency response ope
 4. **Medical Tier (Tier 4):** hospital overload model feeding a time-to-care score
 5. **Evaluation & Dashboard:** metrics, benchmarks, Streamlit visualization
 
+## Video Walkthrough
+
+- [Drive - video Walkthrough](https://drive.google.com/file/d/1Xymr_j2zLSAkvC_SBArdcgsuEOC0AwkY/view?usp=sharing)
 
 ## Requirements
 - Python **3.10+**
