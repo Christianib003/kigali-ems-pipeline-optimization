@@ -60,25 +60,25 @@ pip install -r requirements.txt
 
 ## Figma Design
 1. **Live Operations Dashboard**
-![Live Operations](design/1-live_ops.png)
+![Live Operations](1-live_ops.png)
 
 2. **Incidents**
-![Incidents](design/2-incidents.png)
+![Incidents](2-incidents.png)
 
 3. **Fleet**
-![Fleet](design/3-fleet.png)
+![Fleet](3-fleet.png)
 
 4. **Hospitals**
-![Hospitals](design/4-hospitals.png)
+![Hospitals](4-hospitals.png)
 
 5. **Traffic**
-![Traffic](design/5-traffic.png)
+![Traffic](5-traffic.png)
 
 6. **Analytics**
-![Analytics](design/6-analytics.png)
+![Analytics](6-analytics.png)
 
 7. **Scenario Control**
-![Scenario Control](design/7-scenario_control.png)
+![Scenario Control](7-scenario_control.png)
 
 
 ## Credits:
