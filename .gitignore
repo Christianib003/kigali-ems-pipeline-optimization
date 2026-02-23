@@ -26,3 +26,7 @@ data/processed/*.tmp
 # OS specific
 .DS_Store
 Thumbs.db
+
+
+# project mgnt files
+project_milestones.md
