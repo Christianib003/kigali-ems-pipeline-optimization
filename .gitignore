@@ -9,6 +9,8 @@ venv/
 
 # Jupyter Notebooks
 .ipynb_checkpoints
+notebooks/cache/*
+notebooks/runs/*
 
 # SUMO / Simulation Artifacts
 *.log
@@ -22,6 +24,7 @@ sim/net/*.bak.xml
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*.tmp
+data/processed/*
 
 # OS specific
 .DS_Store

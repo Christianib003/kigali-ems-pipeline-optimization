@@ -1,0 +1,13 @@
+# Kigali Simulation Boundaries
+# Target: High-density sectors (Nyarugenge, Gasabo, Kicukiro)
+kigali_bounds:
+  north: -1.9250
+  south: -1.9850
+  east: 30.1250
+  west: 30.0350
+
+# Network Extraction Settings
+network:
+  type: "drive"
+  simplify: true
+  retain_all: false
