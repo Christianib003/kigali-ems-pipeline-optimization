@@ -1,0 +1,28 @@
+# Core Data & Science
+numpy
+pandas
+matplotlib
+seaborn
+scipy
+scikit-learn
+tqdm
+pyyaml
+
+# Geospatial & Network
+osmnx
+geopandas
+
+# Simulation & RL
+traci
+sumolib
+gymnasium
+
+# Intelligence (PyTorch with Metal Support)
+torch
+torchvision
+torchaudio
+
+# Workflow & Tooling
+ruff
+black
+ipykernel
