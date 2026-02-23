@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.env
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# SUMO / Simulation Artifacts
+*.log
+*.traci.log
+*.xml.gz
+# We only want to keep the final .net.xml and .rou.xml in specific folders
+# but ignore the temporary outputs SUMO generates during runs.
+sim/net/*.bak.xml
+
+# Data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*.tmp
+
+# OS specific
+.DS_Store
+Thumbs.db
