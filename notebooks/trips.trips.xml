@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2026-03-24T10:19:39.782602+02:00 by Eclipse SUMO duarouter 1.26.0
+<duarouterConfiguration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/duarouterConfiguration.xsd">
+
+    <input>
+        <net-file value="../data/processed/kigali.net.xml"/>
+        <route-files value="trips.trips.xml"/>
+    </input>
+
+    <output>
+        <output-file value="trips.trips.xml.tmp"/>
+        <alternatives-output value="NUL"/>
+        <write-trips value="true"/>
+    </output>
+
+    <time>
+        <begin value="0"/>
+        <end value="3600.0"/>
+    </time>
+
+    <report>
+        <no-warnings value="true"/>
+        <ignore-errors value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+</duarouterConfiguration>
+-->
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <trip id="130" depart="93.60" from="672801824#1" to="672801823#0"/>
+    <trip id="507" depart="365.04" from="668589791#0" to="-570949742#1"/>
+    <trip id="1053" depart="758.16" from="275847141" to="581924345#0"/>
+    <trip id="1132" depart="815.04" from="-671954260#0" to="-671965762#1"/>
+    <trip id="1259" depart="906.48" from="466475741#4-AddedOnRampEdge" to="466475741#0-AddedOffRampEdge"/>
+    <trip id="1369" depart="985.68" from="-670407556#1" to="25796148"/>
+    <trip id="1456" depart="1048.32" from="126174081#1" to="126174081#0"/>
+    <trip id="1481" depart="1066.32" from="843925585#0" to="843925585#1"/>
+    <trip id="1746" depart="1257.12" from="265391192#0" to="-265411950#1"/>
+    <trip id="1884" depart="1356.48" from="1185881948#2" to="265391191#3"/>
+    <trip id="2379" depart="1712.88" from="25796180#2" to="-565792634#0"/>
+    <trip id="2531" depart="1822.32" from="25796229#1" to="671750678-AddedOnRampEdge"/>
+    <trip id="2707" depart="1949.04" from="569672813" to="506218271#1"/>
+    <trip id="3138" depart="2259.36" from="671502670" to="1192499268#0"/>
+    <trip id="3244" depart="2335.68" from="25796229#2" to="684237744"/>
+    <trip id="3288" depart="2367.36" from="-667373990#1" to="-671411149#1"/>
+    <trip id="3618" depart="2604.96" from="586317338#0" to="352836911#1"/>
+    <trip id="3713" depart="2673.36" from="565792627#0-AddedOffRampEdge" to="-359206542#0"/>
+    <trip id="3849" depart="2771.28" from="-1295396867#0" to="586299119#0"/>
+    <trip id="3875" depart="2790.00" from="646472941#1" to="586317338#0"/>
+    <trip id="4458" depart="3209.76" from="566691491#3" to="569672814"/>
+</routes>

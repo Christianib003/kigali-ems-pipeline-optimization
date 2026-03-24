@@ -1,0 +1,28 @@
+# Python Environments
+.env
+.venv
+env/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data, Models, and Logs (Ignore contents, keep directories)
+data/raw/*
+!data/raw/.gitkeep
+models/*.pt
+models/*.pth
+!models/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+models/
+cache
+logs
