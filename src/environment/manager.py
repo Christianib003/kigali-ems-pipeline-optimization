@@ -37,7 +37,8 @@ class SimulationManager:
             "--step-length", "1.0",          # Advance 1 second per step
             "--no-step-log", "true",         # Suppresses spammy terminal output
             "--waiting-time-memory", "10000", # Keeps vehicle wait times in memory (crucial for RL state formulation)
-            "--ignore-route-errors", "true"
+            "--ignore-route-errors", "true",
+            "--time-to-teleport", "900"
         ]
         
         logging.info("Starting SUMO Simulation Engine...")
