@@ -41,7 +41,8 @@ def build_sumo_network(graphml_path: str | Path, output_net_path: str | Path) ->
         "--tls.guess", "true",              # Generates traffic light controllers at major intersections
         "--ramps.guess", "true",
         "--junctions.join", "true",         # Merges complex intersections into single nodes
-        "--remove-edges.isolated", "true"   # Prunes disconnected roads that trap vehicles
+        "--remove-edges.isolated", "true",   # Prunes disconnected roads that trap vehicles
+        "--proj.utm", "true"
     ]
     
     try:
