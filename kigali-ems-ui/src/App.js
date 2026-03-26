@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Truck, PlusSquare, Monitor, MapPin, AlertTriangle, Clock, ShieldAlert } from 'lucide-react';
+import { Activity, Truck, PlusSquare, Monitor, MapPin, AlertTriangle, Clock, ShieldAlert, Database } from 'lucide-react';
 
 export default function App() {
   const [role, setRole] = useState(null);
   const [clientId, setClientId] = useState('');
   const [isConnected, setIsConnected] = useState(false);
   const [liveData, setLiveData] = useState(null);
+  const [historyData, setHistoryData] = useState([]); // For the SQLite Database
   const ws = useRef(null);
 
+  // --- WEBSOCKET FOR LIVE VIEWS ---
   useEffect(() => {
-    if (!role || !clientId) return;
+    if (!role || !clientId || role === 'analytics') return;
 
     const socketUrl = `ws://localhost:8000/ws/${role}/${clientId}`;
     ws.current = new WebSocket(socketUrl);
@@ -20,6 +22,16 @@ export default function App() {
 
     return () => { if (ws.current) ws.current.close(); };
   }, [role, clientId]);
+
+  // --- REST API FOR ANALYTICS VIEW ---
+  useEffect(() => {
+    if (role === 'analytics') {
+      fetch('http://localhost:8000/api/history')
+        .then(res => res.json())
+        .then(data => setHistoryData(data.history || []))
+        .catch(err => console.error("Error fetching database history:", err));
+    }
+  }, [role]);
 
   const handleLogin = (selectedRole, id) => {
     setRole(selectedRole);
@@ -33,7 +45,6 @@ export default function App() {
     setLiveData(null);
   };
 
-  // Helper function to format seconds into MM:SS
   const formatETA = (seconds) => {
     if (seconds === undefined || seconds === null) return "--:--";
     const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -53,6 +64,7 @@ export default function App() {
         </h1>
         
         <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+          
           <div style={cardStyle}>
             <Monitor size={48} color="#00e5ff" />
             <h2 style={{marginTop: '1rem'}}>Controller</h2>
@@ -79,6 +91,14 @@ export default function App() {
             </select>
             <button onClick={() => handleLogin('hospital', document.getElementById('hosp-select').value)} style={btnStyle('#00e676')}>View Incoming</button>
           </div>
+
+          <div style={cardStyle}>
+            <Database size={48} color="#f39c12" />
+            <h2 style={{marginTop: '1rem'}}>Reports</h2>
+            <p style={{color: '#888'}}>SQLite History</p>
+            <button onClick={() => handleLogin('analytics', 'admin')} style={btnStyle('#f39c12')}>View Database</button>
+          </div>
+
         </div>
       </div>
     );
@@ -97,10 +117,20 @@ export default function App() {
           <div style={{ flex: 3, backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '1rem', position: 'relative', border: '1px solid #333' }}>
             <h3 style={{ margin: '0 0 1rem 0', color: '#00e5ff' }}><MapPin style={{verticalAlign:'bottom'}}/> Kigali Live Sector Map</h3>
             
-            {/* SVG Coordinate Mapper. SUMO X: 5k-25k, Y: 5k-15k */}
             <svg width="100%" height="90%" viewBox="0 0 20000 10000" style={{ backgroundColor: '#0f0f1a', borderRadius: '8px' }}>
               
-              {/* Render Active Incidents */}
+              {/* 1. Render Hospitals (Red Crosses) */}
+              {liveData?.hospitals?.map(hosp => (
+                <g key={hosp.id} transform={`translate(${hosp.x - 5000}, ${15000 - hosp.y})`}>
+                  <rect x="-100" y="-30" width="200" height="60" fill="#ff2a2a" />
+                  <rect x="-30" y="-100" width="60" height="200" fill="#ff2a2a" />
+                  <text y="150" fill="white" fontSize="120" textAnchor="middle" fontWeight="bold">
+                    {hosp.id} ({hosp.queue})
+                  </text>
+                </g>
+              ))}
+
+              {/* 2. Render Active Incidents */}
               {liveData?.incidents?.map(inc => (
                 <g key={inc.id} transform={`translate(${inc.x - 5000}, ${15000 - inc.y})`}>
                   <circle r="150" fill={inc.status === 'PENDING' ? '#ff3366' : '#f39c12'} className="pulse-anim" />
@@ -108,7 +138,7 @@ export default function App() {
                 </g>
               ))}
 
-              {/* Render Live Ambulances */}
+              {/* 3. Render Live Ambulances */}
               {liveData?.ambulances?.map(amb => (
                 <g key={amb.id} transform={`translate(${amb.x - 5000}, ${15000 - amb.y})`}>
                   <circle r="200" fill={amb.status === 'IDLE' ? '#888' : amb.status === 'RESPONDING' ? '#00e5ff' : amb.status === 'TRANSPORTING' ? '#00e676' : '#f39c12'} />
@@ -140,7 +170,7 @@ export default function App() {
   }
 
   // ==========================================
-  // VIEW 3: AMBULANCE MDT (MOBILE TERMINAL)
+  // VIEW 3: AMBULANCE MDT
   // ==========================================
   if (role === 'ambulance') {
     const isBusy = liveData?.status !== 'IDLE';
@@ -221,6 +251,61 @@ export default function App() {
               ) : (
                 <tr>
                   <td colSpan="3" style={{ padding: '2rem', textAlign: 'center', color: '#555' }}>No inbound ambulances at this time.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // VIEW 5: ANALYTICS & DATABASE HISTORY
+  // ==========================================
+  if (role === 'analytics') {
+    return (
+      <div style={dashboardLayout}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333', paddingBottom: '1rem' }}>
+          <h2 style={{ margin: 0, color: '#f39c12' }}>
+            <Database style={{verticalAlign:'bottom', marginRight:'10px'}}/>
+            DATABASE LOGS <span style={{color: '#888'}}>// AI Dispatch History</span>
+          </h2>
+          <button onClick={handleLogout} style={{ backgroundColor: '#2c2c3e', color: 'white', border: '1px solid #444', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}>Back to Menu</button>
+        </div>
+
+        <div style={{ marginTop: '2rem', backgroundColor: '#1a1a2e', borderRadius: '12px', padding: '2rem', border: '1px solid #333', overflowX: 'auto' }}>
+          <h3 style={{ margin: '0 0 1rem 0', color: 'white' }}>Completed Transport Records</h3>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+            <thead>
+              <tr style={{ backgroundColor: '#0f0f1a', color: '#888' }}>
+                <th style={thStyle}>Incident ID</th>
+                <th style={thStyle}>Severity</th>
+                <th style={thStyle}>Assigned Unit</th>
+                <th style={thStyle}>Receiving Hospital</th>
+                <th style={thStyle}>Drive Time (s)</th>
+                <th style={thStyle}>Total Time (s)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historyData.length > 0 ? historyData.map((row, i) => {
+                const driveTime = row.arrival_step - row.dispatch_step;
+                const totalTime = row.resolved_step - row.dispatch_step;
+                return (
+                  <tr key={i} style={{ borderBottom: '1px solid #333' }}>
+                    <td style={tdStyle}>{row.incident_id}</td>
+                    <td style={tdStyle}><span style={badgeStyle(row.severity)}>Level {row.severity}</span></td>
+                    <td style={tdStyle}>{row.ambulance_id}</td>
+                    <td style={tdStyle}>{row.hospital_id}</td>
+                    <td style={{...tdStyle, color: '#00e5ff'}}>{driveTime}s</td>
+                    <td style={{...tdStyle, color: '#f39c12'}}>{totalTime}s</td>
+                  </tr>
+                );
+              }) : (
+                <tr>
+                  <td colSpan="6" style={{ padding: '2rem', textAlign: 'center', color: '#555' }}>
+                    No completed dispatches logged yet. Let the simulation run!
+                  </td>
                 </tr>
               )}
             </tbody>

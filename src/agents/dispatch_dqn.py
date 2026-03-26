@@ -62,11 +62,9 @@ class DispatchAgent:
         self.action_dim = action_dim
         self.gamma = gamma
         
-        # Determine the best available hardware accelerator
         self.device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
         logging.info(f"DQN initialized on device: {self.device}")
 
-        # Primary and Target networks
         self.policy_net = DQNNetwork(state_dim, action_dim).to(self.device)
         self.target_net = DQNNetwork(state_dim, action_dim).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
@@ -81,24 +79,21 @@ class DispatchAgent:
         available_mask ensures we don't dispatch an ambulance that is already busy.
         """
         if random.random() < epsilon:
-            # Explore: pick a random *available* ambulance
             available_indices = [i for i, is_avail in enumerate(available_mask) if is_avail]
             if not available_indices:
-                return -1 # No ambulances available
+                return -1
             return random.choice(available_indices)
         
-        # Exploit: pick the available ambulance with the highest Q-value
         with torch.no_grad():
             state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
             q_values = self.policy_net(state_tensor).cpu().numpy()[0]
             
-            # Mask out unavailable ambulances with a massive negative penalty
             for i, is_avail in enumerate(available_mask):
                 if not is_avail:
                     q_values[i] = -float('inf')
                     
             if np.max(q_values) == -float('inf'):
-                return -1 # No ambulances available
+                return -1 
                 
             return int(np.argmax(q_values))
 
@@ -115,21 +110,16 @@ class DispatchAgent:
         next_states = torch.FloatTensor(next_states).to(self.device)
         dones = torch.FloatTensor(dones).unsqueeze(1).to(self.device)
 
-        # Get current Q values
         current_q_values = self.policy_net(states).gather(1, actions)
 
-        # Get next Q values from target network
         with torch.no_grad():
             max_next_q_values = self.target_net(next_states).max(1)[0].unsqueeze(1)
             expected_q_values = rewards + (self.gamma * max_next_q_values * (1 - dones))
 
-        # Compute Huber loss (less sensitive to outliers in rewards)
         loss = nn.SmoothL1Loss()(current_q_values, expected_q_values)
 
-        # Optimize the model
         self.optimizer.zero_grad()
         loss.backward()
-        # Gradient clipping to stabilize training
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
 

@@ -3,6 +3,7 @@ import json
 import logging
 import math
 import sys
+import sqlite3
 from pathlib import Path
 import numpy as np
 import traci
@@ -12,7 +13,6 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
-# --- Import your Capstone Engine ---
 sys.path.append(str(Path.cwd()))
 from src.environment.manager import SimulationManager
 from src.environment.hospital import Hospital
@@ -23,11 +23,32 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
-# --- Paths ---
 net_path = Path("data/processed/kigali_connected.net.xml")
 route_path = Path("data/processed/kigali_connected_traffic.rou.xml")
 incidents_path = Path("data/processed/incidents_high_stress.json")
 dqn_model_path = Path("models/dqn_dispatch_v1.pt")
+
+DB_FILE = "ems_history.db"
+
+def init_db():
+    """Creates the database tables for historical analytics."""
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS dispatch_logs (
+            incident_id TEXT PRIMARY KEY,
+            severity INTEGER,
+            ambulance_id TEXT,
+            hospital_id TEXT,
+            dispatch_step INTEGER,
+            arrival_step INTEGER,
+            resolved_step INTEGER
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+init_db()
 
 net = sumolib.net.readNet(str(net_path))
 
@@ -72,6 +93,19 @@ class EMSConnectionManager:
 
 manager = EMSConnectionManager()
 
+# --- REST API (ADDED) ---
+@app.get("/api/history")
+def get_dispatch_history():
+    """Fetches all past incident logs from the SQLite database."""
+    conn = sqlite3.connect(DB_FILE)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM dispatch_logs ORDER BY dispatch_step DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    return {"history": [dict(row) for row in rows]}
+
+# --- WEBSOCKETS ---
 @app.websocket("/ws/{role}/{client_id}")
 async def ems_live_endpoint(websocket: WebSocket, role: str, client_id: str):
     await manager.connect(websocket, role, client_id)
@@ -82,7 +116,6 @@ async def ems_live_endpoint(websocket: WebSocket, role: str, client_id: str):
         manager.disconnect(role, client_id)
 
 
-# --- LIVE SUMO ENGINE ---
 # --- LIVE SUMO ENGINE ---
 async def run_sumo_simulation():
     logging.info("🚀 Booting Live SUMO AI Engine Background Task...")
@@ -112,14 +145,19 @@ async def run_sumo_simulation():
         for idx, h in enumerate(hospitals):
             count = 3 if h.id == "CHUK" else 2 if h.id in ["RMH", "KFH"] else 1
             hx, hy = net.getEdge(h.edge_id).getShape()[0]
+            
+            # --- ADD THESE TWO LINES ---
+            h.x = hx
+            h.y = hy
+            
             for _ in range(count):
                 fleet.append({
                     "id": f"AMB_{len(fleet)}", "base_hospital": idx, 
                     "available": 1.0, 
                     "x": hx, "y": hy, # Current Live GPS
                     "base_x": hx, "base_y": hy, # Home Hospital GPS
-                    "start_x": hx, "start_y": hy, # Where did the current trip start?
-                    "target_x": hx, "target_y": hy, # Where is it driving to?
+                    "start_x": hx, "start_y": hy, 
+                    "target_x": hx, "target_y": hy, 
                     "dispatch_step": 0,
                     "status": "IDLE", "assigned_incident": None,
                     "arrival_step": 0, "resolved_step": 0, "inc_data": None
@@ -162,6 +200,29 @@ async def run_sumo_simulation():
                             amb["y"] = amb["target_y"] + (amb["base_y"] - amb["target_y"]) * progress
                             
                         else:
+                            # --- DATABASE LOGGING (ADDED) ---
+                            if amb["inc_data"]:
+                                conn = sqlite3.connect(DB_FILE)
+                                cursor = conn.cursor()
+                                try:
+                                    cursor.execute('''
+                                        INSERT INTO dispatch_logs (incident_id, severity, ambulance_id, hospital_id, dispatch_step, arrival_step, resolved_step)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                                    ''', (
+                                        amb["inc_data"]["id"], 
+                                        amb["inc_data"].get("severity", 1), 
+                                        amb["id"], 
+                                        hospitals[amb["base_hospital"]].id,
+                                        amb["dispatch_step"], 
+                                        amb["arrival_step"], 
+                                        amb["resolved_step"]
+                                    ))
+                                    conn.commit()
+                                except sqlite3.IntegrityError:
+                                    pass # Ignore if we already logged this exact incident ID
+                                finally:
+                                    conn.close()
+
                             amb["status"] = "IDLE"
                             amb["available"] = 1.0
                             amb["x"] = amb["base_x"]
@@ -234,7 +295,10 @@ async def run_sumo_simulation():
                     "type": "GLOBAL_STATE",
                     "step": step,
                     "ambulances": [{"id": a["id"], "status": a["status"], "x": a["x"], "y": a["y"], "assigned": a["assigned_incident"]} for a in fleet],
-                    "incidents": list(active_incidents.values())
+                    "incidents": list(active_incidents.values()),
+                    
+                    # --- ADD THIS LINE ---
+                    "hospitals": [{"id": h.id, "x": h.x, "y": h.y, "queue": h.current_queue} for h in hospitals]
                 }
                 await manager.broadcast_to_controllers(controller_payload)
 
