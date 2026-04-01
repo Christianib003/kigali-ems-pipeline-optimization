@@ -53,11 +53,18 @@ init_db()
 net = sumolib.net.readNet(str(net_path))
 
 def get_nearest_edge(x, y):
+    # SUMO returns a list of tuples: (edge_object, distance_to_point)
     edges = net.getNeighboringEdges(x, y, 2000) 
-    valid_edges = [e[0] for e in edges if e[0].getID() != "1188083591" and e[0].allows("passenger")]
+    
+    # Keep the tuple structure so we can sort by distance
+    valid_edges = [e for e in edges if e[0].getID() != "1188083591" and e[0].allows("passenger")]
+    
     if valid_edges:
-        valid_edges.sort(key=lambda e: e.getLength(), reverse=True)
-        return valid_edges[0].getID()
+        # Sort by distance (e[1] is the distance), ascending
+        valid_edges.sort(key=lambda e: e[1])
+        # Return the ID of the closest edge
+        return valid_edges[0][0].getID()
+        
     return [e for e in net.getEdges() if e.allows("passenger")][0].getID()
 
 # --- Connection Manager ---
