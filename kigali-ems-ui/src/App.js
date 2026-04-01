@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Activity, Truck, BarChart2, Settings, ShieldAlert, MapPin, PlusSquare } from 'lucide-react';
 
 export default function App() {
