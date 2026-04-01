@@ -8,8 +8,7 @@ export default function App() {
   
   // WebSocket/Live Data States
   const [liveData, setLiveData] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const ws = useRef(null);
+  const ws = useRef(null); // <-- Notice isConnected is completely gone
 
   // --- WEBSOCKET CONNECTION (Kept intact for when backend runs) ---
   useEffect(() => {
@@ -19,9 +18,8 @@ export default function App() {
     const socketUrl = `ws://localhost:8000/ws/controller/admin_ui`;
     ws.current = new WebSocket(socketUrl);
 
-    ws.current.onopen = () => setIsConnected(true);
+    // <-- Notice onopen and onclose are removed because they only set isConnected
     ws.current.onmessage = (event) => setLiveData(JSON.parse(event.data));
-    ws.current.onclose = () => setIsConnected(false);
 
     return () => { if (ws.current) ws.current.close(); };
   }, [eulaAccepted]);
@@ -744,7 +742,8 @@ const FleetView = ({ liveData }) => {
 const HospitalsView = ({ liveData }) => {
   const [selectedHospitalId, setSelectedHospitalId] = useState(null);
 
-  const hospitals = liveData?.hospitals || [];
+  // <-- This is the exact fix for the line 747 dependency error
+  const hospitals = useMemo(() => liveData?.hospitals || [], [liveData?.hospitals]); 
   const ambulances = liveData?.ambulances || [];
 
   // --- 1. CALCULATE METRICS ---
