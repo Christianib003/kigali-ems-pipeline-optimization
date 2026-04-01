@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Truck, Map, BarChart2, Settings, ShieldAlert, Clock, MapPin, PlusSquare } from 'lucide-react';
+import { Activity, Truck, BarChart2, Settings, ShieldAlert, MapPin, PlusSquare } from 'lucide-react';
 
 export default function App() {
   // --- STATE ---
   const [eulaAccepted, setEulaAccepted] = useState(false);
   const [activeTab, setActiveTab] = useState('live');
-  const [selectedIncident, setSelectedIncident] = useState(null);
   
   // WebSocket/Live Data States
   const [liveData, setLiveData] = useState(null);
