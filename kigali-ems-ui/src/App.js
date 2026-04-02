@@ -2,23 +2,17 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Activity, Truck, BarChart2, Settings, ShieldAlert, MapPin, PlusSquare } from 'lucide-react';
 
 export default function App() {
-  // --- STATE ---
   const [eulaAccepted, setEulaAccepted] = useState(false);
   const [activeTab, setActiveTab] = useState('live');
   
-  // WebSocket/Live Data States
   const [liveData, setLiveData] = useState(null);
-  const ws = useRef(null); // <-- Notice isConnected is completely gone
-
-  // --- WEBSOCKET CONNECTION (Kept intact for when backend runs) ---
+  const ws = useRef(null);
   useEffect(() => {
     if (!eulaAccepted) return;
     
-    // Defaulting to controller role for the global dashboard
-    const socketUrl = `ws://localhost:8000/ws/controller/admin_ui`;
+    const socketUrl = `wss://apsidal-preferable-nana.ngrok-free.dev/ws/controller/admin_ui`;
     ws.current = new WebSocket(socketUrl);
 
-    // <-- Notice onopen and onclose are removed because they only set isConnected
     ws.current.onmessage = (event) => setLiveData(JSON.parse(event.data));
 
     return () => { if (ws.current) ws.current.close(); };
@@ -118,7 +112,6 @@ export default function App() {
         </header>
 
         {/* SCROLLABLE VIEW CONTAINER */}
-        {/* SCROLLABLE VIEW CONTAINER */}
         <div style={{ padding: '30px', overflowY: 'auto', flex: 1 }}>
           {activeTab === 'live' && <LiveOperationsView liveData={liveData} />}
           {activeTab === 'incidents' && <IncidentsView liveData={liveData} />}
@@ -149,7 +142,6 @@ export default function App() {
 // VIEW 1: LIVE OPERATIONS DASHBOARD (WIRED & INTERACTIVE)
 // ==========================================
 const LiveOperationsView = ({ liveData }) => {
-  // --- LOCAL STATE ---
   const [severityFilter, setSeverityFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
@@ -157,31 +149,26 @@ const LiveOperationsView = ({ liveData }) => {
 
   const ITEMS_PER_PAGE = 10;
 
-  // Safely extract arrays from liveData
   const incidents = liveData?.incidents || [];
   const ambulances = liveData?.ambulances || [];
   const hospitals = liveData?.hospitals || [];
   const currentStep = liveData?.step || 0;
 
-  // --- 1. APPLY FILTERS ---
   const filteredIncidents = incidents.filter(inc => {
     const matchSeverity = severityFilter === 'All' || String(inc.severity || 1) === severityFilter;
     const matchStatus = statusFilter === 'All' || inc.status === statusFilter;
     return matchSeverity && matchStatus;
   });
 
-  // Reset pagination if filters change
   React.useEffect(() => {
     setCurrentPage(1);
   }, [severityFilter, statusFilter]);
 
-  // --- 2. PAGINATION MATH ---
   const totalPages = Math.ceil(filteredIncidents.length / ITEMS_PER_PAGE) || 1;
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
   const currentTableData = filteredIncidents.slice(indexOfFirstItem, indexOfLastItem);
 
-  // --- 3. LIVE KPIs ---
   const activeIncidentsCount = incidents.length;
   const availableAmbulancesCount = ambulances.filter(a => a.status === 'IDLE').length;
   const overloadedHospitalsCount = hospitals.filter(h => h.queue > 5).length;
@@ -190,7 +177,6 @@ const LiveOperationsView = ({ liveData }) => {
     return `Step ${currentStep} - Incident ${inc.id} (Severity ${inc.severity || 1}) is currently ${inc.status}.`;
   });
 
-  // --- 4. HELPER: FIND ASSIGNED AMBULANCE ---
   const getAssignedAmbulance = (incidentId) => {
     return ambulances.find(a => a.assigned_incident === incidentId);
   };
@@ -419,7 +405,6 @@ const IncidentsView = ({ liveData }) => {
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [historyData, setHistoryData] = useState([]);
 
-  // Fetch closed/resolved incidents from the SQLite database
   useEffect(() => {
     fetch('http://localhost:8000/api/history')
       .then(res => res.json())
@@ -427,7 +412,6 @@ const IncidentsView = ({ liveData }) => {
       .catch(err => console.error("Error fetching database history:", err));
   }, [liveData?.step]); // Re-fetch occasionally as the simulation progresses
 
-  // 1. Format Active Incidents (from WebSocket)
   const activeIncidents = (liveData?.incidents || []).map(inc => ({
     id: inc.id,
     time: `Step ${inc.spawn_step}`,
@@ -439,7 +423,6 @@ const IncidentsView = ({ liveData }) => {
     raw: inc
   }));
 
-  // 2. Format Closed Incidents (from SQLite)
   const closedIncidents = historyData.map(log => ({
     id: log.incident_id,
     time: `Step ${log.dispatch_step}`,
@@ -452,15 +435,12 @@ const IncidentsView = ({ liveData }) => {
     raw: log
   }));
 
-  // 3. Combine and sort them (newest first)
   const allIncidents = [...activeIncidents, ...closedIncidents].sort((a, b) => {
-    // Simple sort to keep active ones at the top, or sort by ID
     if (a.status !== 'closed' && b.status === 'closed') return -1;
     if (a.status === 'closed' && b.status !== 'closed') return 1;
     return a.id > b.id ? -1 : 1;
   });
 
-  // Card Style matching the Mockup
   const cardStyle = {
     backgroundColor: '#fff',
     borderRadius: '4px',
@@ -596,7 +576,6 @@ const IncidentsView = ({ liveData }) => {
 const FleetView = ({ liveData }) => {
   const ambulances = liveData?.ambulances || [];
 
-  // --- 1. CALCULATE STATUS DISTRIBUTION ---
   const statusCounts = {
     IDLE: 0,
     RESPONDING: 0,
@@ -608,18 +587,17 @@ const FleetView = ({ liveData }) => {
     if (statusCounts[amb.status] !== undefined) {
       statusCounts[amb.status]++;
     } else {
-      statusCounts['IDLE']++; // Fallback
+      statusCounts['IDLE']++;
     }
   });
 
-  const totalAmbulances = ambulances.length || 1; // Prevent division by zero
+  const totalAmbulances = ambulances.length || 1;
 
-  // --- 2. GENERATE PURE CSS PIE CHART ---
   const colors = {
-    IDLE: '#51cf66',        // Green (Standby/Available)
-    RESPONDING: '#4dabf7',  // Blue (En Route to Incident)
-    ON_SITE: '#fcc419',     // Yellow (On Scene)
-    TRANSPORTING: '#f03e3e' // Red (En Route to Hospital)
+    IDLE: '#51cf66',      
+    RESPONDING: '#4dabf7', 
+    ON_SITE: '#fcc419',    
+    TRANSPORTING: '#f03e3e'
   };
 
   let cumulativePercent = 0;
@@ -636,7 +614,6 @@ const FleetView = ({ liveData }) => {
 
   const pieBackground = gradientStops ? `conic-gradient(${gradientStops})` : '#f0f0f0';
 
-  // --- 3. STYLES ---
   const cardStyle = {
     backgroundColor: '#fff',
     borderRadius: '4px',
@@ -648,8 +625,6 @@ const FleetView = ({ liveData }) => {
     boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
   };
 
-  // Generate a mock utilization percentage based on the ambulance ID number 
-  // (Since we don't track historical utilization per rig yet, this provides the visual realism for your mockup)
   const getMockUtilization = (id) => {
     const num = parseInt(id.replace('AMB_', ''), 10) || 0;
     return `${Math.min(15 + (num * 12), 95)}%`; 
@@ -742,14 +717,10 @@ const FleetView = ({ liveData }) => {
 const HospitalsView = ({ liveData }) => {
   const [selectedHospitalId, setSelectedHospitalId] = useState(null);
 
-  // <-- This is the exact fix for the line 747 dependency error
   const hospitals = useMemo(() => liveData?.hospitals || [], [liveData?.hospitals]); 
   const ambulances = liveData?.ambulances || [];
 
-  // --- 1. CALCULATE METRICS ---
-  // A helper to derive status, score, inbound, and wait time from the raw queue
   const getHospitalMetrics = (hosp) => {
-    // Assuming a max capacity baseline of ~15 patients for a score of 1.0
     const rawScore = hosp.queue / 15;
     const score = Math.min(rawScore, 1).toFixed(2); 
     
@@ -763,16 +734,13 @@ const HospitalsView = ({ liveData }) => {
       statusColor = '#fcc419';
     }
 
-    // Mock inbound count by finding ambulances currently transporting (could be refined further)
     const inbound = ambulances.filter(a => a.status === 'TRANSPORTING').length % 3; // Mock distribution
     
-    // Estimate wait time: roughly 12 mins per patient in queue
     const estWait = hosp.queue === 0 ? '0m' : `${(hosp.queue * 12) + 5}m`;
 
     return { score, status, statusColor, inbound, estWait };
   };
 
-  // Set default selected hospital if none is selected
   useEffect(() => {
     if (hospitals.length > 0 && !selectedHospitalId) {
       setSelectedHospitalId(hospitals[0].id);
@@ -782,14 +750,10 @@ const HospitalsView = ({ liveData }) => {
   const selectedHospital = hospitals.find(h => h.id === selectedHospitalId) || hospitals[0];
   const selectedMetrics = selectedHospital ? getHospitalMetrics(selectedHospital) : null;
 
-  // --- 2. GENERATE SVG CHART HISTORY ---
-  // To make it look like the mockup, we generate a smooth mock-history path ending at the current live score.
   const generateChartPath = (currentScore) => {
     const s = parseFloat(currentScore);
-    // Y-axis inverted for SVG (0 is top, 150 is bottom)
     const yTarget = 150 - (s * 150); 
     
-    // Create a smooth bezier curve path ending at our live score
     return `M 0 ${150 - (Math.max(0, s - 0.3) * 150)} 
             C 50 ${150 - (Math.max(0, s - 0.2) * 150)}, 
               100 ${150 - (Math.max(0, s - 0.1) * 150)}, 
@@ -797,7 +761,6 @@ const HospitalsView = ({ liveData }) => {
             S 250 ${yTarget}, 300 ${yTarget}`;
   };
 
-  // --- 3. STYLES ---
   const cardStyle = {
     backgroundColor: '#fff',
     borderRadius: '4px',
@@ -931,7 +894,6 @@ const HospitalsView = ({ liveData }) => {
 // VIEW 6: ANALYTICS & BENCHMARKING (FINAL NOTEBOOK RESULTS)
 // ==========================================
 const AnalyticsView = () => {
-  // Data transcribed exactly from the Jupyter Notebook 1-Hour Extended Lifecycle Metrics
   const extendedMetrics = [
     { policy: '0 | Random-Idle', total: 180, active: 85, claimed: 95, resolved: 95, timeouts: 13, meanRT: 895.19, p90RT: 1919.52, util: 0.955 },
     { policy: '1 | Nearest-Idle', total: 180, active: 87, claimed: 93, resolved: 93, timeouts: 12, meanRT: 826.45, p90RT: 1869.30, util: 0.931 },
@@ -939,7 +901,6 @@ const AnalyticsView = () => {
     { policy: '3 | DQN-MARL (Integrated)', total: 180, active: 77, claimed: 103, resolved: 103, timeouts: 12, meanRT: 747.64, p90RT: 1838.49, util: 0.940 },
   ];
 
-  // --- STYLES ---
   const cardStyle = {
     backgroundColor: '#fff', borderRadius: '4px', borderTop: '4px solid #ffdd00',
     borderLeft: '1px solid #e0e0e0', borderRight: '1px solid #e0e0e0',
