@@ -1,7 +1,6 @@
 import logging
 from typing import List
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Hospital:
@@ -22,7 +21,6 @@ class Hospital:
         self.capacity = capacity
         self.service_rate_per_hour = service_rate_per_hour
         
-        # Current load tracking (can be a float in fluid models to represent partial treatments)
         self.current_queue = 0.0
 
     def estimate_wait_time(self) -> float:
@@ -34,10 +32,8 @@ class Hospital:
         if self.current_queue < self.capacity:
             return 0.0
         
-        # Calculate how many patients per second the entire ED can process when full
         clearance_rate_per_second = (self.capacity * self.service_rate_per_hour) / 3600.0
         
-        # Wait time is the backlog divided by the throughput rate
         backlog = self.current_queue - self.capacity + 1 
         wait_seconds = backlog / clearance_rate_per_second
         
@@ -53,7 +49,6 @@ class Hospital:
         This will be called at every step of the SUMO simulation.
         """
         if self.current_queue > 0:
-            # The ED only processes patients up to its physical bay capacity
             active_treatments = min(self.current_queue, self.capacity)
             clearance_rate_per_second = (active_treatments * self.service_rate_per_hour) / 3600.0
             

@@ -34,13 +34,12 @@ class MultiAgentTrafficController:
     """
     def __init__(self, state_dim: int, action_dim: int = 2, lr: float = 1e-3, gamma: float = 0.95):
         self.state_dim = state_dim
-        self.action_dim = action_dim # 0: Keep Phase, 1: Switch Phase
+        self.action_dim = action_dim
         self.gamma = gamma
         
         self.device = torch.device("mps" if torch.backends.mps.is_available() else "cuda" if torch.cuda.is_available() else "cpu")
         logging.info(f"MARL Traffic Controller initialized on device: {self.device}")
 
-        # Shared networks for all intersections
         self.policy_net = SharedTrafficNetwork(state_dim, action_dim).to(self.device)
         self.target_net = SharedTrafficNetwork(state_dim, action_dim).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
@@ -48,7 +47,6 @@ class MultiAgentTrafficController:
 
         self.optimizer = optim.Adam(self.policy_net.parameters(), lr=lr)
         
-        # A shared replay buffer so all intersections learn from each other's experiences
         self.memory = deque(maxlen=50000)
 
     def select_action(self, state: np.ndarray, epsilon: float) -> int:

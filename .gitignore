@@ -6,6 +6,7 @@ venv/
 __pycache__/
 *.py[cod]
 *$py.class
+.claude
 
 # Jupyter
 .ipynb_checkpoints/
@@ -26,3 +27,4 @@ Thumbs.db
 models/
 cache
 logs
+

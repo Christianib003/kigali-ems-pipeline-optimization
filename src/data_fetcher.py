@@ -5,7 +5,6 @@ import networkx as nx
 import requests
 from pathlib import Path
 
-# Configure basic logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def fetch_kigali_osm(districts: list, output_path: str | Path, network_type: str = 'drive') -> None:
@@ -21,16 +20,12 @@ def fetch_kigali_osm(districts: list, output_path: str | Path, network_type: str
 
     logging.info(f"Downloading UN-SIMPLIFIED OSM network data for: {districts}. This may take a moment...")
     try:
-        # CRITICAL FIX: simplify=False ensures all geometric curves are kept for SUMO
         graphs = [ox.graph_from_place(place, network_type=network_type, simplify=False) for place in districts]
         
-        # Combine them using networkx
         combined_graph = nx.compose_all(graphs)
         
-        # Ensure the parent directory exists
         output_path.parent.mkdir(parents=True, exist_ok=True)
         
-        # Save to disk
         ox.save_graphml(combined_graph, filepath=output_path)
         logging.info(f"Successfully saved unsimplified OSM network to {output_path}.")
         
@@ -51,7 +46,7 @@ def download_population_data(url: str, output_path: str | Path) -> None:
     logging.info(f"Downloading population data from {url}...")
     try:
         response = requests.get(url, stream=True)
-        response.raise_for_status() # Check for HTTP errors
+        response.raise_for_status()
         
         output_path.parent.mkdir(parents=True, exist_ok=True)
         

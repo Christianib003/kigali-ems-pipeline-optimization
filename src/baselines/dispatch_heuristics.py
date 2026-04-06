@@ -3,7 +3,6 @@ import math
 import logging
 from typing import List, Dict, Optional
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class BaselineDispatchers:
@@ -25,9 +24,9 @@ class BaselineDispatchers:
         """
         available_ambulances = BaselineDispatchers._get_available_fleet(fleet)
         if not available_ambulances:
-            return None # Queue the incident, no fleet available
+            return None 
             
-        rng = random.Random(seed + int(incident['time'])) # Deterministic selection
+        rng = random.Random(seed + int(incident['time']))
         selected = rng.choice(available_ambulances)
         return selected['id']
 
@@ -45,7 +44,6 @@ class BaselineDispatchers:
         min_dist = float('inf')
 
         for amb in available_ambulances:
-            # Euclidean distance calculation
             dist = math.sqrt((amb['x'] - incident['x'])**2 + (amb['y'] - incident['y'])**2)
             if dist < min_dist:
                 min_dist = dist
@@ -63,11 +61,8 @@ class BaselineDispatchers:
         if not available_ambulances:
             return None
 
-        # If the incident is minor (Severity 1 or 2) and we are at or below reserve capacity, 
-        # deny the dispatch to save the ambulance for a potential Golden Hour incident.
         if incident['severity'] < 3 and len(available_ambulances) <= reserve_capacity:
             logging.info(f"Severity-Priority holding back dispatch for {incident['id']} (Severity {incident['severity']}). Reserving fleet.")
             return None 
 
-        # Otherwise, fall back to nearest-idle logic
         return BaselineDispatchers.nearest_idle_dispatch(incident, fleet)

@@ -6,7 +6,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('live');
   
   const [liveData, setLiveData] = useState(null);
-  const ws = useRef(null);
+  const   ws = useRef(null);
   useEffect(() => {
     if (!eulaAccepted) return;
     
@@ -1010,6 +1010,114 @@ const AnalyticsView = () => {
 
       </div>
 
+    </div>
+  );
+};
+
+// ==========================================
+// ROLE 2: AMBULANCE MDT (Mobile Data Terminal)
+// ==========================================
+const AmbulanceDashboard = ({ liveData, unitId }) => {
+  const myUnit = liveData?.ambulances?.find(a => a.id === unitId) || { status: 'OFFLINE', x: 0, y: 0 };
+  
+  const myIncident = liveData?.incidents?.find(inc => inc.id === myUnit.assigned_incident);
+
+  const statusColors = {
+    IDLE: '#51cf66', RESPONDING: '#4dabf7', ON_SITE: '#fcc419', TRANSPORTING: '#f03e3e', OFFLINE: '#868e96'
+  };
+
+  return (
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '15px', borderBottom: '2px solid #e0e0e0' }}>
+        <h1 style={{ fontSize: '1.8rem', margin: 0, color: '#111' }}>Unit: {unitId.replace('AMB_', 'A')}</h1>
+        <div style={{ padding: '8px 16px', borderRadius: '30px', backgroundColor: statusColors[myUnit.status] || '#888', color: '#fff', fontWeight: 'bold', letterSpacing: '1px' }}>
+          {myUnit.status}
+        </div>
+      </div>
+
+      <div style={{ backgroundColor: '#fff', padding: '30px', borderRadius: '8px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        <h2 style={{ marginTop: 0, fontSize: '1.2rem', color: '#555', textTransform: 'uppercase' }}>Current Assignment</h2>
+        
+        {myIncident ? (
+          <div>
+            <div style={{ fontSize: '3rem', fontWeight: '900', color: '#111', margin: '10px 0' }}>{myIncident.id}</div>
+            <div style={{ fontSize: '1.2rem', color: '#e67700', fontWeight: 'bold', marginBottom: '20px' }}>Severity Level: {myIncident.severity}</div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e0e0e0' }}>
+                <div style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase', marginBottom: '5px' }}>Location X</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{myIncident.x.toFixed(0)}</div>
+              </div>
+              <div style={{ padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '6px', border: '1px solid #e0e0e0' }}>
+                <div style={{ fontSize: '0.8rem', color: '#888', textTransform: 'uppercase', marginBottom: '5px' }}>Location Y</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{myIncident.y.toFixed(0)}</div>
+              </div>
+            </div>
+            
+            {/* Interactive Mock Buttons for Paramedics */}
+            <div style={{ display: 'flex', gap: '15px' }}>
+              <button style={{ flex: 1, padding: '20px', fontSize: '1.1rem', fontWeight: 'bold', backgroundColor: '#fcc419', color: '#111', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>ARRIVED ON SCENE</button>
+              <button style={{ flex: 1, padding: '20px', fontSize: '1.1rem', fontWeight: 'bold', backgroundColor: '#f03e3e', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}>TRANSPORTING</button>
+            </div>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#888' }}>
+            <div style={{ fontSize: '1.5rem', marginBottom: '10px' }}>No Active Assignment</div>
+            <p>Standby for AI Dispatch instructions.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ==========================================
+// ROLE 3: HOSPITAL ER QUEUE MONITOR
+// ==========================================
+const HospitalDashboard = ({ liveData, hospitalId }) => {
+  const myHospital = liveData?.hospitals?.find(h => h.id === hospitalId) || { queue: 0 };
+  const inboundCount = liveData?.ambulances?.filter(a => a.status === 'TRANSPORTING').length % 3; // Mock inbound based on fleet activity
+
+  const getStatus = (queue) => {
+    if (queue >= 10) return { text: 'DIVERT STATUS', color: '#f03e3e', bg: '#ffe3e3' };
+    if (queue >= 5) return { text: 'HIGH LOAD', color: '#e67700', bg: '#fff3bf' };
+    return { text: 'ACCEPTING PATIENTS', color: '#2b8a3e', bg: '#ebfbee' };
+  };
+
+  const status = getStatus(myHospital.queue);
+
+  return (
+    <div style={{ padding: '30px', maxWidth: '1000px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+        <div>
+          <h1 style={{ fontSize: '2.5rem', margin: '0 0 10px 0', color: '#111' }}>{hospitalId} Emergency Dept</h1>
+          <div style={{ display: 'inline-block', padding: '10px 20px', borderRadius: '4px', backgroundColor: status.bg, color: status.color, fontWeight: '900', letterSpacing: '1px' }}>
+            {status.text}
+          </div>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <div style={{ fontSize: '0.9rem', color: '#888', textTransform: 'uppercase', fontWeight: 'bold' }}>Current Time</div>
+          <div style={{ fontSize: '1.5rem', color: '#111' }}>{new Date().toLocaleTimeString()}</div>
+        </div>
+      </header>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+        
+        {/* ER Queue */}
+        <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '8px', border: '1px solid #e0e0e0', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <h2 style={{ fontSize: '1.2rem', color: '#555', textTransform: 'uppercase', margin: '0 0 20px 0' }}>Current ER Queue</h2>
+          <div style={{ fontSize: '6rem', fontWeight: '900', color: '#111', lineHeight: '1' }}>{myHospital.queue}</div>
+          <div style={{ fontSize: '1.1rem', color: '#888', marginTop: '10px' }}>Patients Waiting</div>
+        </div>
+
+        {/* Inbound Telemetry */}
+        <div style={{ backgroundColor: '#fff', padding: '40px', borderRadius: '8px', border: '1px solid #e0e0e0', textAlign: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <h2 style={{ fontSize: '1.2rem', color: '#555', textTransform: 'uppercase', margin: '0 0 20px 0' }}>Inbound Ambulances</h2>
+          <div style={{ fontSize: '6rem', fontWeight: '900', color: '#4dabf7', lineHeight: '1' }}>{inboundCount}</div>
+          <div style={{ fontSize: '1.1rem', color: '#888', marginTop: '10px' }}>Estimated arrivals in next 15 mins</div>
+        </div>
+
+      </div>
     </div>
   );
 };

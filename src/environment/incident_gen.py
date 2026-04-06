@@ -25,9 +25,8 @@ class StochasticIncidentGenerator:
     severity distributions derived from Patel et al. (2016) Kigali RTI research.
     """
     SEVERITY_LEVELS = [1, 2, 3]
-    SEVERITY_WEIGHTS = [0.55, 0.30, 0.15] # 15% critical, 30% severe, 55% minor
+    SEVERITY_WEIGHTS = [0.55, 0.30, 0.15]
 
-    # High-risk spatial clusters (Longitude, Latitude)
     HOTSPOTS = [
         {"name": "Nyabugogo Bus Park Area", "coords": (30.044, -1.939), "radius_m": 1500, "multiplier": 4.0},
         {"name": "Giporoso / Remera", "coords": (30.112, -1.958), "radius_m": 1200, "multiplier": 3.0},
@@ -44,7 +43,6 @@ class StochasticIncidentGenerator:
         if self.net is None:
             self.net = sumolib.net.readNet(str(self.net_path))
 
-        # 1. Convert hotspot GPS coordinates to SUMO X/Y map coordinates
         projected_hotspots = []
         for hs in self.HOTSPOTS:
             hx, hy = self.net.convertLonLat2XY(hs["coords"][0], hs["coords"][1])
@@ -64,14 +62,12 @@ class StochasticIncidentGenerator:
             if edge.allows("passenger") and not edge.isSpecial():
                 edge_id = edge.getID()
                 
-                # 2. SUMO edge shapes are ALREADY in internal X/Y format (meters)
                 shape = edge.getShape()
                 center_x = sum(p[0] for p in shape) / len(shape)
                 center_y = sum(p[1] for p in shape) / len(shape)
                 
                 weight = edge.getLength()
                 
-                # 3. Apply Hotspot Multipliers using pure Euclidean metric distance
                 for hs in projected_hotspots:
                     dist = math.sqrt((center_x - hs["x"])**2 + (center_y - hs["y"])**2)
                     if dist <= hs["radius_m"]:
@@ -81,7 +77,6 @@ class StochasticIncidentGenerator:
                 valid_edges.append(edge_id)
                 weights.append(weight)
                 
-                # Save the physical metric coordinates
                 edge_centers[edge_id] = {"x": center_x, "y": center_y}
 
         return valid_edges, weights, edge_centers
@@ -89,7 +84,6 @@ class StochasticIncidentGenerator:
     def generate(self, output_path: str | Path, num_incidents: int = 30, duration_seconds: int = 3600) -> None:
         output_path = Path(output_path)
         
-        # Resumability check: delete the file to force regeneration
         if output_path.exists():
             logging.info(f"Incident schedule already exists at {output_path}. Skipping generation.")
             return

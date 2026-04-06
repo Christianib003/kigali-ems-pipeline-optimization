@@ -53,21 +53,16 @@ init_db()
 net = sumolib.net.readNet(str(net_path))
 
 def get_nearest_edge(x, y):
-    # SUMO returns a list of tuples: (edge_object, distance_to_point)
     edges = net.getNeighboringEdges(x, y, 2000) 
     
-    # Keep the tuple structure so we can sort by distance
     valid_edges = [e for e in edges if e[0].getID() != "1188083591" and e[0].allows("passenger")]
     
     if valid_edges:
-        # Sort by distance (e[1] is the distance), ascending
         valid_edges.sort(key=lambda e: e[1])
-        # Return the ID of the closest edge
         return valid_edges[0][0].getID()
         
     return [e for e in net.getEdges() if e.allows("passenger")][0].getID()
 
-# --- Connection Manager ---
 class EMSConnectionManager:
     def __init__(self):
         self.active_connections = {}
@@ -100,7 +95,6 @@ class EMSConnectionManager:
 
 manager = EMSConnectionManager()
 
-# --- REST API (ADDED) ---
 @app.get("/api/history")
 def get_dispatch_history():
     """Fetches all past incident logs from the SQLite database."""
@@ -112,7 +106,6 @@ def get_dispatch_history():
     conn.close()
     return {"history": [dict(row) for row in rows]}
 
-# --- WEBSOCKETS ---
 @app.websocket("/ws/{role}/{client_id}")
 async def ems_live_endpoint(websocket: WebSocket, role: str, client_id: str):
     await manager.connect(websocket, role, client_id)
@@ -123,7 +116,6 @@ async def ems_live_endpoint(websocket: WebSocket, role: str, client_id: str):
         manager.disconnect(role, client_id)
 
 
-# --- LIVE SUMO ENGINE ---
 async def run_sumo_simulation():
     logging.info("🚀 Booting Live SUMO AI Engine Background Task...")
     
@@ -153,7 +145,6 @@ async def run_sumo_simulation():
             count = 3 if h.id == "CHUK" else 2 if h.id in ["RMH", "KFH"] else 1
             hx, hy = net.getEdge(h.edge_id).getShape()[0]
             
-            # --- ADD THESE TWO LINES ---
             h.x = hx
             h.y = hy
             
@@ -161,8 +152,8 @@ async def run_sumo_simulation():
                 fleet.append({
                     "id": f"AMB_{len(fleet)}", "base_hospital": idx, 
                     "available": 1.0, 
-                    "x": hx, "y": hy, # Current Live GPS
-                    "base_x": hx, "base_y": hy, # Home Hospital GPS
+                    "x": hx, "y": hy,
+                    "base_x": hx, "base_y": hy,
                     "start_x": hx, "start_y": hy, 
                     "target_x": hx, "target_y": hy, 
                     "dispatch_step": 0,
@@ -182,13 +173,12 @@ async def run_sumo_simulation():
                 sim_manager.step()
                 
                 # ==========================================================
-                # 1. LIVE GPS MOVEMENT ENGINE
+                # LIVE GPS MOVEMENT ENGINE
                 # ==========================================================
                 for amb in fleet:
                     if amb["available"] == 0.0:
                         if step < amb["arrival_step"]:
                             amb["status"] = "RESPONDING"
-                            # Calculate exactly how far along the route it is (0.0 to 1.0)
                             progress = (step - amb["dispatch_step"]) / max(1, (amb["arrival_step"] - amb["dispatch_step"]))
                             amb["x"] = amb["start_x"] + (amb["target_x"] - amb["start_x"]) * progress
                             amb["y"] = amb["start_y"] + (amb["target_y"] - amb["start_y"]) * progress
@@ -200,14 +190,12 @@ async def run_sumo_simulation():
                             
                         elif step < amb["resolved_step"]:
                             amb["status"] = "TRANSPORTING"
-                            # Driving back to the hospital
                             departure_step = amb["arrival_step"] + 60
                             progress = (step - departure_step) / max(1, (amb["resolved_step"] - departure_step))
                             amb["x"] = amb["target_x"] + (amb["base_x"] - amb["target_x"]) * progress
                             amb["y"] = amb["target_y"] + (amb["base_y"] - amb["target_y"]) * progress
                             
                         else:
-                            # --- DATABASE LOGGING (ADDED) ---
                             if amb["inc_data"]:
                                 conn = sqlite3.connect(DB_FILE)
                                 cursor = conn.cursor()
@@ -226,7 +214,7 @@ async def run_sumo_simulation():
                                     ))
                                     conn.commit()
                                 except sqlite3.IntegrityError:
-                                    pass # Ignore if we already logged this exact incident ID
+                                    pass 
                                 finally:
                                     conn.close()
 
@@ -239,7 +227,7 @@ async def run_sumo_simulation():
                             amb["assigned_incident"] = None
                             amb["inc_data"] = None
 
-                # 2. Process New Incidents
+                # Process New Incidents
                 while current_incident_idx < len(incidents) and step >= incidents[current_incident_idx]['time']:
                     inc = incidents[current_incident_idx]
                     inc['id'] = f"KGL_RTI_{current_incident_idx:04d}"
@@ -249,7 +237,7 @@ async def run_sumo_simulation():
                     active_incidents[inc['id']] = inc
                     current_incident_idx += 1
                     
-                # 3. DQN AI Dispatch Engine
+                # DQN AI Dispatch Engine
                 while pending_queue and any(a["available"] == 1.0 for a in fleet):
                     pending_queue.sort(key=lambda x: x['spawn_step'])
                     inc = pending_queue.pop(0)
@@ -275,7 +263,7 @@ async def run_sumo_simulation():
                             except:
                                 drive_time = math.sqrt((amb['x'] - inc['x'])**2 + (amb['y'] - inc['y'])**2) / 15.0
                                 
-                            drive_time *= 0.80 # AI Traffic assumption
+                            drive_time *= 0.80
                             
                             hosp.admit_patient()
                             wait_time = hosp.estimate_wait_time()
@@ -285,7 +273,6 @@ async def run_sumo_simulation():
                             amb["assigned_incident"] = inc["id"]
                             amb["inc_data"] = inc
                             
-                            # Log the GPS targets for the movement engine
                             amb["dispatch_step"] = step
                             amb["start_x"] = amb["x"]
                             amb["start_y"] = amb["y"]
@@ -296,21 +283,19 @@ async def run_sumo_simulation():
                             amb["resolved_step"] = amb["arrival_step"] + 60 + int(drive_time) + int(wait_time)
 
                 # ===================================================================
-                # 4. BROADCAST TO CONTROLLER (God Mode)
+                # LINK TO CONTROLLER DASHBOARDS (Real-Time Monitoring)
                 # ===================================================================
                 controller_payload = {
                     "type": "GLOBAL_STATE",
                     "step": step,
                     "ambulances": [{"id": a["id"], "status": a["status"], "x": a["x"], "y": a["y"], "assigned": a["assigned_incident"]} for a in fleet],
                     "incidents": list(active_incidents.values()),
-                    
-                    # --- ADD THIS LINE ---
                     "hospitals": [{"id": h.id, "x": h.x, "y": h.y, "queue": h.current_queue} for h in hospitals]
                 }
                 await manager.broadcast_to_controllers(controller_payload)
 
                 # ===================================================================
-                # 5. BROADCAST TO AMBULANCES (Mobile Terminals)
+                # BROADCAST TO AMBULANCES (Mobile Terminals)
                 # ===================================================================
                 for amb in fleet:
                     if amb["status"] != "IDLE":
@@ -326,7 +311,7 @@ async def run_sumo_simulation():
                         await manager.send_personal_message(amb_payload, "ambulance", amb["id"])
 
                 # ===================================================================
-                # 6. BROADCAST TO HOSPITALS (Receiving Boards)
+                # BROADCAST TO HOSPITALS (Receiving Boards)
                 # ===================================================================
                 for idx, hosp in enumerate(hospitals):
                     incoming = []

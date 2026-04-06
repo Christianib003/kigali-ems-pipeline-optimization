@@ -2,7 +2,6 @@ import traci
 import logging
 from pathlib import Path
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class SimulationManager:
@@ -15,28 +14,24 @@ class SimulationManager:
         self.route_path = Path(route_path)
         self.use_gui = use_gui
         
-        # Select the executable
         self.sumo_binary = "sumo-gui" if self.use_gui else "sumo"
 
     def start(self) -> None:
         """Starts the SUMO engine and establishes the TraCI connection."""
         
-        # CRITICAL SAFEGUARD: If a previous notebook run crashed, TraCI might still be attached to the port.
-        # This forcefully closes any lingering connections before starting a new one.
         try:
             traci.close()
             logging.info("Closed lingering TraCI connection.")
         except traci.exceptions.FatalTraCIError:
-            pass # No existing connection, which is fine.
+            pass
 
-        # Configure the simulation parameters
         sumo_cmd = [
             self.sumo_binary,
             "-n", str(self.net_path),
             "-r", str(self.route_path),
-            "--step-length", "1.0",          # Advance 1 second per step
-            "--no-step-log", "true",         # Suppresses spammy terminal output
-            "--waiting-time-memory", "10000", # Keeps vehicle wait times in memory (crucial for RL state formulation)
+            "--step-length", "1.0",  
+            "--no-step-log", "true",
+            "--waiting-time-memory", "10000",
             "--ignore-route-errors", "true",
             "--time-to-teleport", "900"
         ]

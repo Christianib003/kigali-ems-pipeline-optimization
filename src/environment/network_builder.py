@@ -4,7 +4,6 @@ import osmnx as ox
 import sumolib
 from pathlib import Path
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def build_sumo_network(graphml_path: str | Path, output_net_path: str | Path) -> None:
@@ -19,29 +18,26 @@ def build_sumo_network(graphml_path: str | Path, output_net_path: str | Path) ->
 
     osm_xml_path = output_net_path.parent / "kigali.osm.xml"
     
-    # 1. Convert our existing GraphML to plain OSM XML using OSMnx
     if not osm_xml_path.exists():
         logging.info("Loading previously downloaded Kigali GraphML...")
         G = ox.load_graphml(graphml_path)
         
         logging.info("Converting GraphML locally to SUMO-compatible OSM XML...")
-        # This uses OSMnx's built-in tool specifically designed for SUMO integration
         ox.save_graph_xml(G, filepath=osm_xml_path)
         logging.info("Local XML conversion complete.")
         
-    # 2. Run SUMO's netconvert programmatically
     logging.info("Running netconvert on the locally generated XML...")
     
     cmd = [
         "netconvert",
         "--osm-files", str(osm_xml_path),
         "--output-file", str(output_net_path),
-        "--geometry.remove", "true",        # Simplifies geometry for faster simulation
-        "--roundabouts.guess", "true",      # Fixes right-of-way logic in traffic circles
-        "--tls.guess", "true",              # Generates traffic light controllers at major intersections
+        "--geometry.remove", "true",
+        "--roundabouts.guess", "true",
+        "--tls.guess", "true",
         "--ramps.guess", "true",
-        "--junctions.join", "true",         # Merges complex intersections into single nodes
-        "--remove-edges.isolated", "true",   # Prunes disconnected roads that trap vehicles
+        "--junctions.join", "true",
+        "--remove-edges.isolated", "true",
         "--proj.utm", "true"
     ]
     
